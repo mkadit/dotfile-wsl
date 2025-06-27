@@ -1,0 +1,12 @@
+[tools]
+age = "latest"
+ant = "1.10.15"
+bun = "latest"
+chezmoi = "latest"
+go = "1.24.3"
+gradle = "latest"
+java = "21.0.2"
+lua = "5.1"
+node = "22.9.0"
+python = "latest"
+sops = "latest"

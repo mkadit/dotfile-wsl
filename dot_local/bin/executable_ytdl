@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+BASE_COMMAND="yt-dlp --add-metadata --embed-thumbnail"
+MUSIC_COMMAND="$BASE_COMMAND -f bestaudio --extract-audio --audio-format mp3 -o '~/Music/%(title)s.%(ext)s'"
+VIDEO_COMMAND="$BASE_COMMAND -f bestvideo+bestaudio -o '~/Videos/%(title)s.%(ext)s'"
+FILE_COMMAND=" --batch-file ~/.local/src/script/youtube-source.txt"
+
+if [ "$1" = 'music' ]; then
+	if [ $# -eq 2 ]; then
+		eval "$MUSIC_COMMAND $2"
+	else
+		eval "$MUSIC_COMMAND$FILE_COMMAND"
+	fi
+elif [ "$1" = 'video' ]; then
+	if [ $# -eq 2 ]; then
+		eval "$VIDEO_COMMAND $2"
+	else
+		eval "$VIDEO_COMMAND$FILE_COMMAND"
+	fi
+elif [ $# -eq 0 ]; then
+	nvim ~/.local/src/script/youtube-source.txt
+fi

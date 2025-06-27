@@ -1,0 +1,256 @@
+#!/bin/bash
+
+# --- Script Configuration and Defaults ---
+
+# Exit immediately if a command exits with a non-zero status.
+set -e
+# Treat unset variables as an error.
+set -u
+# The return value of a pipeline is the status of the last command to exit with a non-zero status,
+# or zero if all commands in the pipeline exit successfully.
+set -o pipefail
+
+# Default Rclone command (can be overridden by arguments)
+RCLONE_COMMAND="rclone copy"
+
+# Default local mount point for external drives (e.g., Windows drives in WSL)
+MOUNT="/mnt/" # Ensure trailing slash for consistent pathing
+
+# Use HOME for clarity and consistency
+HOME_DIR="$HOME"
+
+# Extra Rclone options to be added dynamically (e.g., --dry-run, --size-only)
+RCLONE_EXTRA_OPTS=""
+
+# Flags for optional behaviors
+DRY_RUN=false
+FORCE_SIZE_ONLY=false # New flag to explicitly force --size-only for 'copy'
+
+# --- Function to Display Usage Information ---
+display_usage() {
+  echo "Usage: $0 <type> <destination_type> <action> <command_type> [--dry-run] [--force-size-only]"
+  echo ""
+  echo "  <type>:            'data', 'media', or 'note' - defines which source directories to use."
+  echo "  <destination_type>: 'cloud' or 'local' - specifies where to backup/restore to/from."
+  echo "  <action>:          'backup' or 'restore' - defines the direction of the operation."
+  echo "  <command_type>:    'copy' or 'sync' - determines the Rclone operation."
+  echo ""
+  echo "Optional Flags:"
+  echo "  --dry-run:         Perform a trial run with no changes made. Highly recommended for testing."
+  echo "  --force-size-only: Always use --size-only for file comparison, even with 'copy' command."
+  echo "                     (Note: 'sync' command automatically uses --size-only for comparison)."
+  echo ""
+  echo "Examples:"
+  echo "  $0 data cloud backup sync --dry-run"
+  echo "  $0 note local restore copy --force-size-only"
+  echo "  $0 media cloud backup copy"
+  exit 1
+}
+
+# --- Argument Parsing and Configuration ---
+
+# Validate initial parameters and set SOURCES and CLOUD_MOUNT based on <type>
+if [ -z "${1:-}" ]; then # Check if $1 is empty or unset
+  display_usage
+fi
+
+case "$1" in
+data)
+  SOURCES=(
+    "Documents/books"
+    "Documents/projects"
+    "Documents/important"
+  )
+  CLOUD_MOUNT="sync_g_drive:"
+  ;;
+media)
+  SOURCES=(
+    "Music"
+  )
+  CLOUD_MOUNT="sync_g_drive:"
+  ;;
+note)
+  SOURCES=(
+    "Documents/Notes"
+  )
+  CLOUD_MOUNT="crypt_sync_g_drive:" # This is your encrypted remote
+  ;;
+secret)
+  echo "Secret restore function not implemented yet."
+  exit 1
+  ;;
+*)
+  echo "Error: Invalid first parameter. Use 'data', 'media', or 'note'."
+  display_usage
+  ;;
+esac
+
+# Parse optional flags like --dry-run and --force-size-only
+# Shift arguments so positional parameters (like $1, $2) refer to the main arguments
+# after flags have been processed.
+for arg in "$@"; do
+  case "$arg" in
+  --dry-run)
+    DRY_RUN=true
+    RCLONE_EXTRA_OPTS+=" --dry-run"
+    ;;
+  --force-size-only)
+    FORCE_SIZE_ONLY=true
+    ;;
+  # Add a default case to ignore other arguments if they are not flags
+  *) ;;
+  esac
+done
+
+# Validate positional arguments after flags are parsed
+if [ -z "${2:-}" ] || [ -z "${3:-}" ] || [ -z "${4:-}" ]; then
+  echo "Error: Missing required positional arguments."
+  display_usage
+fi
+
+## Determine Rclone command type (copy or sync) based on fourth parameter
+if [ "$4" = 'copy' ]; then
+  RCLONE_COMMAND="rclone copy"
+  # If --force-size-only is used with 'copy', add the flag
+  if [ "$FORCE_SIZE_ONLY" = true ]; then
+    RCLONE_EXTRA_OPTS+=" --size-only"
+  fi
+elif [ "$4" = 'sync' ]; then
+  RCLONE_COMMAND="rclone sync"
+  # As requested, for 'sync', --size-only is now always used for comparison.
+  RCLONE_EXTRA_OPTS+=" --size-only"
+else
+  echo "Error: Fourth parameter must be 'copy' or 'sync'"
+  display_usage
+fi
+
+# --- Rclone Sync/Copy Functions ---
+
+# Function to handle local synchronization (e.g., to/from WSL mounted drives)
+local_sync() {
+  local_action="$3"       # backup or restore
+  local_command_type="$4" # copy or sync
+
+  local FROM=""
+  local TO=""
+
+  if [ "$local_action" = 'restore' ]; then
+    FROM="${MOUNT}"
+    TO="${HOME_DIR}/"
+    echo "Action: Restoring $1 from local mount to $HOME_DIR"
+  elif [ "$local_action" = 'backup' ]; then
+    FROM="${HOME_DIR}/"
+    TO="${MOUNT}"
+    echo "Action: Backing up $1 from $HOME_DIR to local mount"
+  else
+    echo "Error: Third parameter must be 'backup' or 'restore'"
+    exit 1
+  fi
+
+  echo "Running: ${RCLONE_COMMAND} ${RCLONE_EXTRA_OPTS} from ${FROM} to ${TO}"
+
+  for SOURCE in "${SOURCES[@]}"; do
+    # Ensure destination directory exists for local operations
+    mkdir -p "${TO}${SOURCE}"
+
+    echo "Processing: ${SOURCE}"
+    # Construct the full Rclone command
+    # --fast-list for faster directory listing, --transfers/--checkers for concurrency
+    # --backup-dir creates dated backups of changed/deleted files in the destination
+    ${RCLONE_COMMAND} -P --fast-list --transfers=4 --checkers=8 \
+      "${FROM}${SOURCE}" "${TO}${SOURCE}" \
+      --backup-dir "${TO}backup/$(date -I)/${SOURCE}/" \
+      ${RCLONE_EXTRA_OPTS}
+
+    # Check exit status of the Rclone command
+    if [ $? -ne 0 ]; then
+      echo "Error: Failed to process ${SOURCE}"
+      # Continue to next source or exit, depending on desired behavior
+      # For now, we'll let set -e handle exiting on error, but a more
+      # sophisticated script might log and continue.
+    else
+      echo "Success: Processed ${SOURCE}"
+    fi
+  done
+}
+
+# Function to handle cloud synchronization (e.g., to/from Google Drive)
+cloud_sync() {
+  local_action="$3"       # backup or restore
+  local_command_type="$4" # copy or sync
+
+  local FROM=""
+  local TO=""
+
+  if [ "$local_action" = 'restore' ]; then
+    FROM="${CLOUD_MOUNT}"
+    TO="${HOME_DIR}/"
+    echo "Action: Restoring $1 from cloud remote to $HOME_DIR"
+  elif [ "$local_action" = 'backup' ]; then
+    FROM="${HOME_DIR}/"
+    TO="${CLOUD_MOUNT}"
+    echo "Action: Backing up $1 from $HOME_DIR to cloud remote"
+  else
+    echo "Error: Third parameter must be 'backup' or 'restore'"
+    exit 1
+  fi
+
+  echo "Running: ${RCLONE_COMMAND} ${RCLONE_EXTRA_OPTS} from ${FROM} to ${TO}"
+
+  for SOURCE in "${SOURCES[@]}"; do
+    # For cloud operations, the backup-dir is relative to the cloud remote
+    echo "Processing: ${SOURCE}"
+    ${RCLONE_COMMAND} -P --fast-list --transfers=4 --checkers=8 \
+      "${FROM}${SOURCE}" "${TO}${SOURCE}" \
+      --backup-dir "${TO}backup/$(date -I)/${SOURCE}/" \
+      ${RCLONE_EXTRA_OPTS}
+
+    if [ $? -ne 0 ]; then
+      echo "Error: Failed to process ${SOURCE}"
+    else
+      echo "Success: Processed ${SOURCE}"
+    fi
+  done
+}
+
+# --- Wrapper Functions for Remote/Local Checks ---
+
+# Checks if the local drive is mounted (heuristic for WSL)
+local_run() {
+  # Check for common WSL mount points or MTP devices
+  # This is a heuristic and might need adjustment based on your specific WSL setup
+  LOCAL_ISMOUNTED=$(mount | grep -E 'sdc|simple-mtpfs|drvfs' | wc -l)
+
+  if [ "$LOCAL_ISMOUNTED" -gt 0 ]; then
+    local_sync "$@"
+  else
+    echo "Error: Local drive is not mounted. Please ensure your Windows drive is accessible in WSL."
+    exit 1
+  fi
+}
+
+# Checks if the cloud remote is configured (not if it's 'mounted' in filesystem sense)
+cloud_run() {
+  # rclone listremotes checks if the remote name is configured in rclone.conf
+  CLOUD_CONFIGURED=$(rclone listremotes | grep -c "^${CLOUD_MOUNT}$")
+
+  if [ "$CLOUD_CONFIGURED" -gt 0 ]; then
+    cloud_sync "$@"
+  else
+    echo "Error: Cloud drive '${CLOUD_MOUNT}' is not properly configured or accessible via rclone."
+    echo "Please run 'rclone config' to set up your remote."
+    exit 1
+  fi
+}
+
+# --- Main Script Execution ---
+
+# Determine whether to run local or cloud operations based on second parameter
+if [ "$2" = 'cloud' ]; then
+  cloud_run "$@"
+elif [ "$2" = 'local' ]; then
+  local_run "$@"
+else
+  echo "Error: Invalid second parameter. Use 'cloud' or 'local'"
+  display_usage
+fi

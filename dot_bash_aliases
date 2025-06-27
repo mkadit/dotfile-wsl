@@ -1,0 +1,51 @@
+alias v='nvim'
+alias cl='clear;echo ""'
+alias h='history'
+alias mv='mv -i'
+alias rm='rm -i'
+alias sss='. ~/.profile'
+
+if [ -x "$(command -v exa)" ]; then
+	alias ls="exa"
+else
+	alias ls="ls -hN --color=auto --group-directories-first"
+fi
+
+# alias ls="exa || ls -hN --color=auto --group-directories-first"
+alias l="ls"
+alias ll="ls -al"
+alias vbg='xwinwrap -ov -fs -fdt -ni -b -nf -un -o 1.0 -debug -- mpv -wid WID --loop --no-audio'
+alias ynvidia="__GL_THREADED_OPTIMIZATIONS=1 yuzu"
+alias cz="chezmoi"
+
+# fzf-extend
+alias man="fzf-man"
+alias rm="fzf-rm"
+alias zi="z -I"
+
+# Package
+QPAS='pacman -Si {1}'
+QPAR='pacman -Qi {1}'
+QAAS='paru -Si {1}'
+QAAR='paru -Qi {1}'
+alias pas='pacman -Slq | fzf -m --preview ${QPAS} | xargs -ro sudo pacman -S'
+alias par='pacman -Qqe | fzf -m --preview ${QPAR} | xargs -ro sudo pacman -Rns'
+alias aas='paru -Slq | fzf -m --preview ${QAAS} | xargs -ro  paru -S'
+alias aar='paru -Qqe | fzf -m --preview ${QAAR} | xargs -ro  paru -Rns'
+
+#Tmux
+alias tmn="tmux new -s"
+alias tma="tmux a -t"
+
+# Git
+alias ggR='git reset'
+alias ggc='git checkout'
+alias ggr='git revert'
+alias ggs='git status'
+alias ggf='git fetch'
+alias gga='git add'
+alias ggb='git branch'
+alias ggB='git remote'
+alias glog='git log --all --decorate --oneline --graph'
+
+alias tmup='tmuxp load $(tmuxp ls | fzf)'

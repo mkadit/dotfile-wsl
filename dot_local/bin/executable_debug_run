@@ -1,0 +1,9 @@
+#!/bin/bash
+
+file=$(readlink -f "$1")
+ext="${file##*.}"
+
+case "$ext" in
+# Try to keep these cases in alphabetical order.
+go) dlv debug -l 127.0.0.1:43000 --headless "$file" ;;
+esac
