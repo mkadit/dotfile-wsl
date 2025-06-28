@@ -148,3 +148,4 @@ fzf-checkout(){
         echo "Can't check out or create branch. Not in a git repo"
     fi
 }
+

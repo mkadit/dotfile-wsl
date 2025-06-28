@@ -6,9 +6,9 @@ alias rm='rm -i'
 alias sss='. ~/.profile'
 
 if [ -x "$(command -v exa)" ]; then
-	alias ls="exa"
+  alias ls="exa"
 else
-	alias ls="ls -hN --color=auto --group-directories-first"
+  alias ls="ls -hN --color=auto --group-directories-first"
 fi
 
 # alias ls="exa || ls -hN --color=auto --group-directories-first"
@@ -49,3 +49,5 @@ alias ggB='git remote'
 alias glog='git log --all --decorate --oneline --graph'
 
 alias tmup='tmuxp load $(tmuxp ls | fzf)'
+
+alias ats='atuin scripts'

@@ -69,7 +69,14 @@ plugins=(
 source ~/.config/zsh/modules/function/fzf_extend.zsh
 source ~/.config/zsh/modules/function/mise.zsh
 source ~/.config/zsh/modules/completion/mise.zsh
+
 source ~/.config/zsh/modules/function/bun.zsh
+source ~/.config/zsh/modules/completion/bun.zsh
+
+source ~/.config/zsh/modules/completion/uv.zsh
 source ~/.config/zsh/modules/function/krew.zsh
+
+
+source ~/.config/zsh/modules/completion/chezmoi.zsh
 
 z-plugin-load $plugins
