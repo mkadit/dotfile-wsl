@@ -116,7 +116,7 @@ rfv() {
 	$HOME/.local/bin/rfv
   }
 zle     -N   rfv
-bindkey '^R' rfv
+bindkey '^H' rfv
 
 zsh_fzf_gfold() {
   gfold_path=$($HOME/.local/bin/fzf_gfold)
