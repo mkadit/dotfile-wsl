@@ -61,5 +61,6 @@ PATH=$PATH:$HOME/.local/share/bob/nvim-bin
 
 # Keybinding last to override other plugins keybind
 source ~/.config/zsh/modules/key-bindings.zsh
+source ~/.config/zsh/modules/completion/atuin.zsh
 bindkey -v
 
