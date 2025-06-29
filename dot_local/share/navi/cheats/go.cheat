@@ -1,0 +1,6 @@
+% go, run
+
+# run package
+go run ./cmd/<package>
+
+$ package: ls cmd | fzf

@@ -201,7 +201,7 @@ bind-git-helper() {
   for c in $@; do
     eval "fzf-g$c-widget() { local result=\$(_g$c | join-lines); zle reset-prompt; LBUFFER+=\$result }"
     eval "zle -N fzf-g$c-widget"
-    eval "bindkey '^g^$c' fzf-g$c-widget"
+    eval "bindkey '^g$c' fzf-g$c-widget"
   done
 }
 bind-git-helper f b t r h s
@@ -209,5 +209,3 @@ unset -f bind-git-helper
 
 bindkey "^[[Z" fzf-tab-complete
 bindkey "^I" expand-or-complete
-
-bindkey ${FZF_MARKS_JUMP:-'^e'} fzm

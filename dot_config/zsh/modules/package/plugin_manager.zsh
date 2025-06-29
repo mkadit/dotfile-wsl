@@ -74,6 +74,8 @@ source ~/.config/zsh/modules/function/bun.zsh
 source ~/.config/zsh/modules/completion/bun.zsh
 
 source ~/.config/zsh/modules/completion/uv.zsh
+source ~/.config/zsh/modules/completion/navi.zsh
+
 source ~/.config/zsh/modules/function/krew.zsh
 
 

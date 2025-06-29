@@ -1,0 +1,8 @@
+% linux, ls
+
+# ls binary file location
+ls <directory>
+
+$ binary_location: which <binary>
+$ directory: dirname <binary_location>
+
