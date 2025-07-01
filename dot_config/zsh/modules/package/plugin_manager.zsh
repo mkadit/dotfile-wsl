@@ -62,7 +62,7 @@ plugins=(
   Aloxaf/fzf-tab
   urbainvaes/fzf-marks
   djui/alias-tips
-  skywind3000/z.lua
+  # skywind3000/z.lua
 )
 
 # Load local functions
@@ -75,6 +75,8 @@ source ~/.config/zsh/modules/completion/bun.zsh
 
 source ~/.config/zsh/modules/completion/uv.zsh
 source ~/.config/zsh/modules/completion/navi.zsh
+source ~/.config/zsh/modules/completion/zoxide.zsh
+source ~/.config/zsh/modules/completion/jc.zsh
 
 source ~/.config/zsh/modules/function/krew.zsh
 
