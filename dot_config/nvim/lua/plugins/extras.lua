@@ -72,18 +72,18 @@ return {
     },
   },
 
-  {
-    "biozz/whop.nvim",
-    event = "LazyFile",
-    config = function()
-      require("whop").setup({
-        commands = {
-          { name = "Decode JWT", cmd = [[%! jc --jwt]] },
-          { name = "YAML to JSON", cmd = [[%! jc --yaml]] },
-          { name = "XML to JSON", cmd = [[%! jc --xml]] },
-        },
-      })
-      require("telescope").load_extension("whop")
-    end,
-  },
+  -- {
+  --   "biozz/whop.nvim",
+  --   event = "LazyFile",
+  --   config = function()
+  --     require("whop").setup({
+  --       commands = {
+  --         { name = "Decode JWT", cmd = [[%! jc --jwt]] },
+  --         { name = "YAML to JSON", cmd = [[%! jc --yaml]] },
+  --         { name = "XML to JSON", cmd = [[%! jc --xml]] },
+  --       },
+  --     })
+  --     require("telescope").load_extension("whop")
+  --   end,
+  -- },
 }

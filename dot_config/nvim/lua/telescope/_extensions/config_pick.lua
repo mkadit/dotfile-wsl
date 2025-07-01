@@ -25,6 +25,7 @@ local config_picker = function(opts)
           { "vifm", "~/.config/vifm/vifmrc" },
           { "vscode", "~/.config/Code/User/settings.json", cd = true },
           { "youtube-src", "~/.local/src/script/youtube-source.txt" },
+          { "cheatsheet", "~/.local/share/navi/cheats/main.cheat" },
           { "zsh", "~/.zshrc" },
         },
         entry_maker = function(entry)
