@@ -19,4 +19,4 @@ uv tool install kaskade
 uv tool install --python 3.13 posting
 
 # install nodejs tools
-bun install -g tailwindcss @tailwindcss/cli
+# bun install -g tailwindcss @tailwindcss/cli
