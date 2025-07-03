@@ -12,7 +12,7 @@ local config = wezterm.config_builder()
 config.color_scheme = "nord"
 
 -- Set font size
-config.font_size = 10.0
+config.font_size = 8.0
 
 -- Terminal identifier
 config.term = "xterm-256color"
@@ -94,20 +94,60 @@ config.keys = {
 		end),
 	},
 
+	-- toggle color
+	{
+		key = "E",
+		mods = "CTRL|SHIFT|ALT",
+		action = wezterm.action.EmitEvent("toggle-colorscheme"),
+	},
+
 	-- Miscellaneous
 	{ key = "9", mods = "CTRL|SHIFT|ALT", action = act.PaneSelect },
 	{ key = "L", mods = "CTRL|SHIFT|ALT", action = act.ShowDebugOverlay },
 }
 
 -- Custom event for toggling the color scheme
+-- List of themes to rotate through
+local theme_cycle = {
+	{ wezterm = "nord", nvim = "nightfox" },
+	{ wezterm = "rose-pine-dawn", nvim = "rose-pine-dawn" },
+	{ wezterm = "rose-pine-moon", nvim = "rose-pine-moon" },
+	{ wezterm = "Gruvbox Material (Gogh)", nvim = "gruvbox-material" },
+	{ wezterm = "Everforest Dark (Gogh)", nvim = "everforest" },
+	{ wezterm = "catppuccin-latte", nvim = "catppuccin-latte" },
+	{ wezterm = "Dracula (Gogh)", nvim = "dracula" },
+	{ wezterm = "dawnfox", nvim = "dawnfox" },
+}
+
+-- Helper to find current index in the cycle
+local function find_current_index(current_theme)
+	for i, theme in ipairs(theme_cycle) do
+		if theme.wezterm == current_theme then
+			return i
+		end
+	end
+	return 0 -- Not found
+end
 wezterm.on("toggle-colorscheme", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
-	if overrides.color_scheme == "rose-pine-dawn" then
-		-- You can replace "Cloud (terminal.sexy)" with any other theme you like
-		overrides.color_scheme = "nord"
-	else
-		overrides.color_scheme = "rose-pine-dawn"
-	end
+	local current = overrides.color_scheme or "rose-pine-dawn"
+	local theme_file = "/home/leppy/.config/nvim/lua/plugins/theme.lua"
+
+	local i = find_current_index(current)
+	local next_index = (i % #theme_cycle) + 1
+	local next_theme = theme_cycle[next_index]
+
+	overrides.color_scheme = next_theme.wezterm
+
+	-- Replace Neovim colorscheme line using sed
+	wezterm.run_child_process({
+		"wsl",
+		"sed",
+		"-i",
+		[[s/colorscheme = ".*"/colorscheme = "]] .. next_theme.nvim .. [["/]],
+		theme_file,
+	})
+
 	window:set_config_overrides(overrides)
 end)
 

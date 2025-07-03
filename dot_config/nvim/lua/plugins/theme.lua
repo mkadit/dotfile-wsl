@@ -4,6 +4,9 @@ return {
     event = "VeryLazy",
     name = "nightfox",
   },
+  { "rose-pine/neovim", event = "VeryLazy", name = "rose-pine" },
+  { "sainnhe/gruvbox-material", event = "VeryLazy", name = "gruvbox-material" },
+  { "Mofiqul/dracula.nvim", event = "VeryLazy", name = "dracula" },
   {
     "neanias/everforest-nvim",
     name = "everforest",
@@ -11,9 +14,7 @@ return {
     event = "VeryLazy",
     -- Optional; default configuration will be used if setup isn't called.
     config = function()
-      require("everforest").setup({
-        -- Your config here
-      })
+      require("everforest").setup()
     end,
   },
   {
