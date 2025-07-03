@@ -5,4 +5,3 @@ ls <directory>
 
 $ binary_location: which <binary>
 $ directory: dirname <binary_location>
-

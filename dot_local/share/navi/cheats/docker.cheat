@@ -1,0 +1,6 @@
+% docker, image
+
+# save image into a tar file
+docker save <file> -o image.tar
+
+$ file: docker image ls --format json | jq '.Repository + ":" + .Tag' | fzf

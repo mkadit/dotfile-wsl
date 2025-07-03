@@ -12,6 +12,7 @@ local config = wezterm.config_builder()
 config.color_scheme = "nord"
 
 -- Set font size
+config.font = wezterm.font("JetBrains Mono")
 config.font_size = 8.0
 
 -- Terminal identifier
@@ -61,6 +62,12 @@ config.prefer_egl = true
 -- KEYMAPS & CUSTOM ACTIONS
 ---------------------------------------------------
 config.keys = {
+	{
+		key = "V",
+		mods = "CTRL|SHIFT",
+		action = wezterm.action.PasteFrom("Clipboard"),
+	},
+
 	-- Pane splitting
 	{
 		key = "v",
