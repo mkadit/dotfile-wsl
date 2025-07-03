@@ -70,3 +70,8 @@ bindkey -v
 
 # bun completions
 [ -s "/home/leppy/.bun/_bun" ] && source "/home/leppy/.bun/_bun"
+# SSH Agent
+if [ -z "$SSH_AUTH_SOCK" ]; then
+   # Start a new agent
+   eval "$(ssh-agent -s)" > /dev/null
+fi
