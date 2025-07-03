@@ -77,6 +77,7 @@ source ~/.config/zsh/modules/completion/uv.zsh
 source ~/.config/zsh/modules/completion/navi.zsh
 source ~/.config/zsh/modules/completion/zoxide.zsh
 source ~/.config/zsh/modules/completion/jc.zsh
+source ~/.config/zsh/modules/completion/gopass.zsh
 
 source ~/.config/zsh/modules/function/krew.zsh
 

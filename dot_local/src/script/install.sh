@@ -10,16 +10,17 @@ packages=(
   jc
   jq
   liblua5.1-0-dev
-  lnav
   make
+  mysql-client
+  postgresql-client
+  rng-tools
+  sqlite3
+  tldr
   tmux
   tree
   unzip
   vifm
   zsh
-  postgresql-client
-  mysql-client
-  sqlite3
 )
 
 sudo apt update
