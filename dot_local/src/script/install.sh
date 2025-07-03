@@ -36,8 +36,10 @@ done
 
 # Install Mise
 curl https://mise.run | sh
+# mise install
 
 # Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 cargo install ripgrep
 cargo install bob-nvim
 cargo install fd
@@ -47,9 +49,6 @@ cargo install navi
 cargo install zoxide
 cargo install mprocs
 cargo install fselect
-
-# Install Neovim
-bob use stable
 
 # Change shell to ZSH
 chsh -s "$(which zsh)"

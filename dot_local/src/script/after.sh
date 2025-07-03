@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Install Neovim
+bob use stable
+
 # go packages
 go install github.com/Zxilly/go-size-analyzer/cmd/gsa@latest
 go install github.com/vektra/mockery/v3@v3.3.2
