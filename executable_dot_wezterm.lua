@@ -13,7 +13,7 @@ config.color_scheme = "nord"
 
 -- Set font size
 config.font = wezterm.font("JetBrains Mono")
-config.font_size = 8.0
+config.font_size = 9.0
 
 -- Terminal identifier
 config.term = "xterm-256color"
