@@ -4,3 +4,20 @@
 docker save <file> -o image.tar
 
 $ file: docker image ls --format json | jq '.Repository + ":" + .Tag' | fzf
+
+% docker, logs
+
+# get docker log of a process
+docker logs <process>
+
+$ containers: docker ps --format json | jq '.ID + " " + .Names + " " + .Ports + " " + .State' | fzf
+$ process : echo $(echo <containers> | awk -F ' ' '{print $1}')
+
+% docker, context
+
+# switch docker context
+docker context use <context>
+
+$ list: docker context ls --format json | jq '.Name + " " + .DockerEndpoint + " " + .Error' | fzf
+$ context : echo $(echo <list> | awk -F ' ' '{print $1}')
+
