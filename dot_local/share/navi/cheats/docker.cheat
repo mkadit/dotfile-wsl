@@ -21,3 +21,10 @@ docker context use <context>
 $ list: docker context ls --format json | jq '.Name + " " + .DockerEndpoint + " " + .Error' | fzf
 $ context : echo $(echo <list> | awk -F ' ' '{print $1}')
 
+% docker, exec
+# execute interactive command to docker container
+docker exec -it <process> <command>
+
+$ containers: docker ps --format json | jq '.ID + " " + .Names + " " + .Ports + " " + .State' | fzf
+$ process : echo $(echo <containers> | awk -F ' ' '{print $1}')
+
