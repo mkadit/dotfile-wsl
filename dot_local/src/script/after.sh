@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# install mise packages
+mise install
+
 # Install Neovim
 bob use stable
 
@@ -10,6 +13,7 @@ go install -tags most github.com/xo/usql@master
 go install github.com/derailed/k9s@latest
 go install github.com/jesseduffield/lazydocker@latest
 go install github.com/gopasspw/gopass@latest
+go install github.com/mikefarah/yq/v4@latest
 
 # tailwindcss
 curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
