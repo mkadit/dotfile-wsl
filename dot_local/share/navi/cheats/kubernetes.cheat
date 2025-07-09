@@ -1,3 +1,28 @@
+% kubernetes, get, object
+
+# get a specific value of an object
+kubectl get <object> <value>
+
+$ object: kubectl api-resources -o name | fzf
+$ value:  kubectl get <object> -o json | jq -r '.items[].metadata.name' | fzf
+
+
+% kubernetes, describe, object
+
+# describe a specific value of an object
+kubectl describe <object> <value>
+
+$ object: kubectl api-resources -o name | fzf
+$ value:  kubectl get <object> -o json | jq -r '.items[].metadata.name' | fzf
+
+
+% kubernetes, exec, pods
+# execute interactive command to kubernetes pod
+kubectl exec -it <pod> -- <command>
+
+$ pod_list: kubectl get pods --output json | jq '.items[].metadata | "[" + .namespace + "] " + .name' | fzf
+$ pod : echo $(echo <pod_list> | awk -F ' ' '{print $2}')
+
 % kubernetes, exec, pods
 
 # execute interactive command to kubernetes pod
@@ -17,12 +42,12 @@ $ ns : echo $(echo <ns_list> | awk -F ' ' '{print $1}')
 
 % kubernetes, set, context
 # set change context
-kubectl config set-context 
+kubectl config set-context <context>
+
+$ context : kubectl config get-contexts --output name | fzf
 
 % kubernetes, get, logs
-# set change context
-kubectl config set-context 
-
+# get logs for pod
 kubectl logs <pod>
 
 $ pod_list: kubectl get pods --output json | jq '.items[].metadata | "[" + .namespace + "] " + .name' | fzf

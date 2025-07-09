@@ -1,0 +1,6 @@
+% system, network
+# change network setting according to proxy
+source <bin>
+
+$ bin: which wsl-proxy-sync
+
