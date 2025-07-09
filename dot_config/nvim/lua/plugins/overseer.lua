@@ -2,7 +2,7 @@ return {
   {
     "stevearc/overseer.nvim",
     opts = {
-      templates = { "builtin", "user.compile_build", "user.dlv_run" },
+      templates = { "builtin", "user.compile_build", "user.dlv_run", "user.wsl_proxy_sync" },
     },
 
     keys = {

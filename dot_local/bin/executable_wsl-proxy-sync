@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Get Windows proxy settings via PowerShell
+proxy=$(powershell.exe -Command "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' | Select-Object -ExpandProperty ProxyServer" 2>/dev/null | tr -d '\r')
+enabled=$(powershell.exe -Command "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' | Select-Object -ExpandProperty ProxyEnable" 2>/dev/null | tr -d '\r')
+PRIVATE_DOMAIN="suisei.gitlab.com"
+
+if [ "$enabled" = "1" ] && [ -n "$proxy" ]; then
+  export http_proxy="http://$proxy"
+  export https_proxy="http://$proxy"
+  export HTTP_PROXY="http://$proxy"
+  export HTTPS_PROXY="http://$proxy"
+
+  if command -v go >/dev/null 2>&1; then
+    go env -w GOPROXY=direct
+    go env -w GOPRIVATE=$PRIVATE_DOMAIN
+    go env -w GONOSUMDB=$PRIVATE_DOMAIN
+    go env -w GOINSECURE=$PRIVATE_DOMAIN
+  fi
+
+  if command -v git >/dev/null 2>&1; then
+    git config --global http.proxy "$http_proxy"
+    git config --global https.proxy "$https_proxy"
+  fi
+
+  echo "🔌 Proxy enabled: $proxy"
+
+else
+  if command -v go >/dev/null 2>&1; then
+    go env -w GOPROXY=https://proxy.golang.org,direct
+    go env -u GOPRIVATE
+    go env -u GONOSUMDB
+    go env -u GOINSECURE
+  fi
+
+  unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+
+  if command -v git >/dev/null 2>&1; then
+    git config --global --unset http.proxy 2>/dev/null
+    git config --global --unset https.proxy 2>/dev/null
+  fi
+
+  echo "🌐 Proxy disabled"
+fi
