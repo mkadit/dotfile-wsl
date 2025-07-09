@@ -227,3 +227,19 @@ if vim.fn.has("nvim-0.11") == 0 then
     return vim.snippet.active({ direction = -1 }) and "<cmd>lua vim.snippet.jump(-1)<cr>" or "<S-Tab>"
   end, { expr = true, desc = "Jump Previous" })
 end
+
+vim.cmd([[
+" Function for diff
+let g:diff_window = 0
+function! DiffToggle()
+    if g:diff_window
+        diffoff!
+        let g:diff_window= 0
+    else
+        windo diffthis
+        let g:diff_window= 1
+    endif
+endfunction
+]]
+)
+map("n", "<Leader>af", "<CMD>call DiffToggle()<CR>", {desc = "Toggle diff between panes"})

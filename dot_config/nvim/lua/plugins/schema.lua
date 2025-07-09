@@ -37,6 +37,12 @@ return {
                   "Jenkins X Requirements",
                   "Jest",
                   "k3d.yaml",
+                  "gRPC API Gateway & OpenAPI Config",
+                  "Helm Chart.yaml",
+                  "Helm Chart.lock",
+                  "Helm Unittest Test Suite",
+
+                  -- custom
                   ".sops.yaml",
                   "Kubernetes",
                 },
@@ -74,6 +80,7 @@ return {
                       -- suffix-style naming
                       "**/*.k8s.yaml",
                       "**/*.kubernetes.yaml",
+                      "**/*deployment.yaml",
 
                       -- k8s-related folders
                       "**/k8s/*.yaml",
