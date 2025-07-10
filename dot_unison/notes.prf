@@ -1,0 +1,11 @@
+root = /home/leppy/Documents/Notes/notes
+root = /mnt/d/Documents/Notes/notes
+
+auto = true
+batch = true
+prefer = newer
+backup = Name *
+backupdir = /home/leppy/unison-backups
+log = true
+perms = 0
+

@@ -19,6 +19,7 @@ packages=(
   tmux
   tree
   unzip
+  unison
   vifm
   zsh
 )
