@@ -9,15 +9,18 @@ return {
   event = {
     -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
     -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+    "BufReadPre ".. vim.fn.expand("~").."/Documents/Notes/notes/**.md",
+    "BufNewFile ".. vim.fn.expand("~").."/Documents/Notes/notes/**.md",
+
     "BufReadPre ".. vim.fn.expand("~").."/WDocuments/Notes/notes/**.md",
     "BufNewFile ".. vim.fn.expand("~").."/WDocuments/Notes/notes/**.md",
+
+
   },
     --stylua: ignore end
     dependencies = {
       -- Required.
       "nvim-lua/plenary.nvim",
-
-      -- see below for full list of optional dependencies 👇
     },
     opts = {
       workspaces = {
@@ -65,7 +68,9 @@ return {
       -- * "prepend*note_path", e.g. '[[foo-bar.md|Foo Bar]]'
       -- * "use_path_only", e.g. '[[foo-bar.md]]'
       -- Or you can set it to a function that takes a table of options and returns a string, like this:
-      wiki_link_func = "use_alias_only",
+      wiki_link_func = function(opts)
+        return require("obsidian.util").wiki_link_alias_only(opts)
+      end,
 
       -- Optional, customize how markdown links are formatted.
       -- markdown_link_func = function(opts)
@@ -95,6 +100,21 @@ return {
 
         return out
       end,
+
+      attachments = {
+        img_folder = "009-Extras/Assets",
+        img_name_func = function()
+          return string.format("Pasted image %s", os.date("%Y%m%d%H%M%S"))
+        end,
+        confirm_img_paste = true,
+      },
+
+      completion = {
+        nvim_cmp = false,
+        blink = true,
+        min_chars = 2,
+        create_new = true,
+      },
 
       picker = {
         -- Set your preferred picker. Can be one of 'telescope.nvim', 'fzf-lua', 'mini.pick' or 'snacks.pick'.
@@ -190,17 +210,19 @@ return {
       },
     },
   },
-
   {
     "folke/snacks.nvim",
-    opts = {
-      image = {
-        resolve = function(path, src)
-          if require("obsidian.api").path_is_note(path) then
-            return require("obsidian.api").resolve_image_path(src)
+    opts = function(_, opts)
+      opts.image = opts.image or {}
+      local obsidian_ok, obsidian_api = pcall(require, "obsidian.api")
+      if obsidian_ok then
+        opts.image.resolve = function(path, src)
+          if obsidian_api.path_is_note(path) then
+            -- return obsidian_api.resolve_image_path(src .. "/009-Extras/Assets")
+            return obsidian_api.resolve_image_path(src)
           end
-        end,
-      },
-    },
+        end
+      end
+    end,
   },
 }
