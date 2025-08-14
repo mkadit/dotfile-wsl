@@ -4,3 +4,18 @@
 go run ./cmd/<package>
 
 $ package: ls cmd | fzf
+
+% go, build
+
+# build package
+CGO_ENABLED=0 go build -ldflags="-s -w" -o ./build/<package> ./cmd/<package>/main.go
+
+$ package: ls cmd | fzf
+
+% go, test
+
+# test package
+go test -cover -v -coverprofile=coverage.out <package>
+
+$ package: go list ./... | grep -vE "logger|utils|models|ports|common|cmd|mocks"| fzf
+

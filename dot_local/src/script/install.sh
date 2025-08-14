@@ -14,12 +14,14 @@ packages=(
   mysql-client
   postgresql-client
   rng-tools
+  ntpdate
   sqlite3
   tldr
   tmux
   tree
   unzip
   unison
+  utils-linux
   vifm
   zsh
 )

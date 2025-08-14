@@ -51,3 +51,5 @@ alias glog='git log --all --decorate --oneline --graph'
 alias tmup='tmuxp load $(tmuxp ls | fzf)'
 
 alias ats='atuin scripts'
+
+alias wkube='kubectl.exe'

@@ -1,25 +1,9 @@
-#compdef kubectl
+#compdef yq
+compdef _yq yq
 
-# Copyright 2016 The Kubernetes Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#compdef kubectl
-compdef _kubectl kubectl
-compdef _kubectl kubectl.exe
+# zsh completion for yq                                   -*- shell-script -*-
 
-# zsh completion for kubectl                              -*- shell-script -*-
-
-__kubectl_debug()
+__yq_debug()
 {
     local file="$BASH_COMP_DEBUG_FILE"
     if [[ -n ${file} ]]; then
@@ -27,7 +11,7 @@ __kubectl_debug()
     fi
 }
 
-_kubectl()
+_yq()
 {
     local shellCompDirectiveError=1
     local shellCompDirectiveNoSpace=2
@@ -39,21 +23,21 @@ _kubectl()
     local lastParam lastChar flagPrefix requestComp out directive comp lastComp noSpace keepOrder
     local -a completions
 
-    __kubectl_debug "\n========= starting completion logic =========="
-    __kubectl_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
+    __yq_debug "\n========= starting completion logic =========="
+    __yq_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
 
     # The user could have moved the cursor backwards on the command-line.
     # We need to trigger completion from the $CURRENT location, so we need
     # to truncate the command-line ($words) up to the $CURRENT location.
     # (We cannot use $CURSOR as its value does not work when a command is an alias.)
     words=("${=words[1,CURRENT]}")
-    __kubectl_debug "Truncated words[*]: ${words[*]},"
+    __yq_debug "Truncated words[*]: ${words[*]},"
 
     lastParam=${words[-1]}
     lastChar=${lastParam[-1]}
-    __kubectl_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
+    __yq_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
 
-    # For zsh, when completing a flag with an = (e.g., kubectl -n=<TAB>)
+    # For zsh, when completing a flag with an = (e.g., yq -n=<TAB>)
     # completions must be prefixed with the flag
     setopt local_options BASH_REMATCH
     if [[ "${lastParam}" =~ '-.*=' ]]; then
@@ -66,22 +50,22 @@ _kubectl()
     if [ "${lastChar}" = "" ]; then
         # If the last parameter is complete (there is a space following it)
         # We add an extra empty parameter so we can indicate this to the go completion code.
-        __kubectl_debug "Adding extra empty parameter"
+        __yq_debug "Adding extra empty parameter"
         requestComp="${requestComp} \"\""
     fi
 
-    __kubectl_debug "About to call: eval ${requestComp}"
+    __yq_debug "About to call: eval ${requestComp}"
 
     # Use eval to handle any environment variables and such
     out=$(eval ${requestComp} 2>/dev/null)
-    __kubectl_debug "completion output: ${out}"
+    __yq_debug "completion output: ${out}"
 
     # Extract the directive integer following a : from the last line
     local lastLine
     while IFS='\n' read -r line; do
         lastLine=${line}
     done < <(printf "%s\n" "${out[@]}")
-    __kubectl_debug "last line: ${lastLine}"
+    __yq_debug "last line: ${lastLine}"
 
     if [ "${lastLine[1]}" = : ]; then
         directive=${lastLine[2,-1]}
@@ -91,16 +75,16 @@ _kubectl()
         out=${out[1,-$suffix]}
     else
         # There is no directive specified.  Leave $out as is.
-        __kubectl_debug "No directive found.  Setting do default"
+        __yq_debug "No directive found.  Setting do default"
         directive=0
     fi
 
-    __kubectl_debug "directive: ${directive}"
-    __kubectl_debug "completions: ${out}"
-    __kubectl_debug "flagPrefix: ${flagPrefix}"
+    __yq_debug "directive: ${directive}"
+    __yq_debug "completions: ${out}"
+    __yq_debug "flagPrefix: ${flagPrefix}"
 
     if [ $((directive & shellCompDirectiveError)) -ne 0 ]; then
-        __kubectl_debug "Completion received error. Ignoring completions."
+        __yq_debug "Completion received error. Ignoring completions."
         return
     fi
 
@@ -111,11 +95,11 @@ _kubectl()
     while IFS='\n' read -r comp; do
         # Check if this is an activeHelp statement (i.e., prefixed with $activeHelpMarker)
         if [ "${comp[1,$endIndex]}" = "$activeHelpMarker" ];then
-            __kubectl_debug "ActiveHelp found: $comp"
+            __yq_debug "ActiveHelp found: $comp"
             comp="${comp[$startIndex,-1]}"
             if [ -n "$comp" ]; then
                 compadd -x "${comp}"
-                __kubectl_debug "ActiveHelp will need delimiter"
+                __yq_debug "ActiveHelp will need delimiter"
                 hasActiveHelp=1
             fi
 
@@ -132,7 +116,7 @@ _kubectl()
             local tab="$(printf '\t')"
             comp=${comp//$tab/:}
 
-            __kubectl_debug "Adding completion: ${comp}"
+            __yq_debug "Adding completion: ${comp}"
             completions+=${comp}
             lastComp=$comp
         fi
@@ -143,19 +127,19 @@ _kubectl()
     # - file completion will be performed (so there will be choices after the activeHelp)
     if [ $hasActiveHelp -eq 1 ]; then
         if [ ${#completions} -ne 0 ] || [ $((directive & shellCompDirectiveNoFileComp)) -eq 0 ]; then
-            __kubectl_debug "Adding activeHelp delimiter"
+            __yq_debug "Adding activeHelp delimiter"
             compadd -x "--"
             hasActiveHelp=0
         fi
     fi
 
     if [ $((directive & shellCompDirectiveNoSpace)) -ne 0 ]; then
-        __kubectl_debug "Activating nospace."
+        __yq_debug "Activating nospace."
         noSpace="-S ''"
     fi
 
     if [ $((directive & shellCompDirectiveKeepOrder)) -ne 0 ]; then
-        __kubectl_debug "Activating keep order."
+        __yq_debug "Activating keep order."
         keepOrder="-V"
     fi
 
@@ -172,17 +156,17 @@ _kubectl()
         done
         filteringCmd+=" ${flagPrefix}"
 
-        __kubectl_debug "File filtering command: $filteringCmd"
+        __yq_debug "File filtering command: $filteringCmd"
         _arguments '*:filename:'"$filteringCmd"
     elif [ $((directive & shellCompDirectiveFilterDirs)) -ne 0 ]; then
         # File completion for directories only
         local subdir
         subdir="${completions[1]}"
         if [ -n "$subdir" ]; then
-            __kubectl_debug "Listing directories in $subdir"
+            __yq_debug "Listing directories in $subdir"
             pushd "${subdir}" >/dev/null 2>&1
         else
-            __kubectl_debug "Listing directories in ."
+            __yq_debug "Listing directories in ."
         fi
 
         local result
@@ -193,17 +177,17 @@ _kubectl()
         fi
         return $result
     else
-        __kubectl_debug "Calling _describe"
+        __yq_debug "Calling _describe"
         if eval _describe $keepOrder "completions" completions $flagPrefix $noSpace; then
-            __kubectl_debug "_describe found some completions"
+            __yq_debug "_describe found some completions"
 
             # Return the success of having called _describe
             return 0
         else
-            __kubectl_debug "_describe did not find completions."
-            __kubectl_debug "Checking if we should do file completion."
+            __yq_debug "_describe did not find completions."
+            __yq_debug "Checking if we should do file completion."
             if [ $((directive & shellCompDirectiveNoFileComp)) -ne 0 ]; then
-                __kubectl_debug "deactivating file completion"
+                __yq_debug "deactivating file completion"
 
                 # We must return an error code here to let zsh know that there were no
                 # completions found by _describe; this is what will trigger other
@@ -212,7 +196,7 @@ _kubectl()
                 return 1
             else
                 # Perform file completion
-                __kubectl_debug "Activating file completion"
+                __yq_debug "Activating file completion"
 
                 # We must return the result of this command, so it must be the
                 # last command, or else we must store its result to return it.
@@ -223,6 +207,6 @@ _kubectl()
 }
 
 # don't run the completion function when being source-ed or eval-ed
-if [ "$funcstack[1]" = "_kubectl" ]; then
-    _kubectl
+if [ "$funcstack[1]" = "_yq" ]; then
+    _yq
 fi

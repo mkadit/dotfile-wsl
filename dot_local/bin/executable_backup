@@ -118,7 +118,9 @@ if [ "$4" = 'copy' ]; then
 elif [ "$4" = 'sync' ]; then
   RCLONE_COMMAND="rclone sync"
   # As requested, for 'sync', --size-only is now always used for comparison.
-  RCLONE_EXTRA_OPTS+=" --size-only"
+  if [ "$FORCE_SIZE_ONLY" = true ]; then
+    RCLONE_EXTRA_OPTS+=" --size-only"
+  fi
 else
   echo "Error: Fourth parameter must be 'copy' or 'sync'"
   display_usage

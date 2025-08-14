@@ -83,6 +83,7 @@ source ~/.config/zsh/modules/completion/kubectl.zsh
 source ~/.config/zsh/modules/completion/helm.zsh
 source ~/.config/zsh/modules/completion/k3d.zsh
 source ~/.config/zsh/modules/completion/tmuxp.zsh
+source ~/.config/zsh/modules/completion/buf.zsh
 
 source ~/.config/zsh/modules/function/krew.zsh
 

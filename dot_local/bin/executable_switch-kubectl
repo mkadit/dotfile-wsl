@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Define paths
+KUBECTL_WIN="/Docker/host/bin/kubectl.exe"
+KUBECTL_LINUX="/usr/local/bin/kubectl"
+DEFAULT_KUBECONFIG="$HOME/.kube/config"
+WIN_KUBECONFIG="/mnt/c/Users/muhammad.adityaputro/local.yaml" # Windows kubeconfig mounted in WSL
+
+# Usage help
+usage() {
+  echo "Usage: source kubectl-switch.sh [linux|windows]"
+  echo "Note: Use 'source' or '.' to apply in current shell session."
+  return 1
+}
+
+# Ensure the script is sourced, not executed
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "⚠️  Please run with 'source kubectl-switch.sh [linux|windows]'"
+  usage
+  exit 1
+fi
+
+# Clean up previous alias
+unalias kubectl 2>/dev/null
+
+# Switching logic
+case "$1" in
+linux)
+  if [[ ! -x "$KUBECTL_LINUX" ]]; then
+    echo "❌ Linux kubectl not found at $KUBECTL_LINUX"
+    return 1
+  fi
+
+  export KUBECONFIG="$DEFAULT_KUBECONFIG"
+  alias kubectl="$KUBECTL_LINUX"
+
+  echo "✅ kubectl now points to: $KUBECTL_LINUX"
+  echo "📁 KUBECONFIG set to: $KUBECONFIG"
+  ;;
+
+windows)
+  if [[ ! -x "$KUBECTL_WIN" ]]; then
+    echo "❌ Windows kubectl not found at $KUBECTL_WIN"
+    return 1
+  fi
+
+  if [[ -f "$WIN_KUBECONFIG" ]]; then
+    CONFIG_TO_USE="$WIN_KUBECONFIG"
+    echo "ℹ️  Using Windows kubeconfig: $WIN_KUBECONFIG"
+  elif [[ -f "$DEFAULT_KUBECONFIG" ]]; then
+    CONFIG_TO_USE="$DEFAULT_KUBECONFIG"
+    echo "⚠️  Windows kubeconfig not found, falling back to default: $DEFAULT_KUBECONFIG"
+  else
+    echo "❌ No kubeconfig file found (neither $WIN_KUBECONFIG nor $DEFAULT_KUBECONFIG)"
+    return 1
+  fi
+
+  # Convert to Windows-style path
+  WIN_PATH=$(wslpath -w "$CONFIG_TO_USE")
+  export KUBECONFIG="$WIN_PATH"
+  alias kubectl="$KUBECTL_WIN"
+
+  echo "✅ kubectl now points to: $KUBECTL_WIN"
+  echo "📁 KUBECONFIG set to: $KUBECONFIG"
+  ;;
+
+*)
+  usage
+  return 1
+  ;;
+esac
+
+# Confirm setup
+echo
+kubectl version --client
