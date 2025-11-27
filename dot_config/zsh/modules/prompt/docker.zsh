@@ -5,7 +5,7 @@ function _vbe_docker_async_start() {
 }
 
 function _vbe_docker_fetch() {
-    docker context show 2>/dev/null
+    docker context show 2>/dev/null || echo "inactive"
 }
 
 function _vbe_docker_done() {
