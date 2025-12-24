@@ -18,7 +18,7 @@ return {
 
   -- align
   {
-    "echasnovski/mini.align",
+    "nvim-mini/mini.align",
     event = "VeryLazy",
     config = function()
       require("mini.align").setup()
@@ -109,6 +109,30 @@ return {
       { "<leader>gdf", "<cmd>DiffviewFileHistory --follow<cr>", desc = "Diff Line Git History", mode = { "v" } },
       { "<leader>gdc", "<cmd>DiffviewClose", desc = "Close Diff" },
     },
+  },
+
+  {
+    "esmuellert/vscode-diff.nvim",
+    event = "VeryLazy",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    config = function()
+      require("vscode-diff").setup({
+        -- Diff view behavior
+        diff = {
+          disable_inlay_hints = true, -- Disable inlay hints in diff windows for cleaner view
+          max_computation_time_ms = 5000, -- Maximum time for diff computation (VSCode default)
+        },
+      })
+    end,
+  },
+
+  --git portal
+  {
+    "trevorhauter/gitportal.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("gitportal").setup({})
+    end,
   },
 
   --git gist

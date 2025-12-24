@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+# fpd: fuzzy project directory selector with optional command execution
+
+set -euo pipefail
+
+# --- Configuration ----------------------------------------------------------
+BASE_PATH="${HOME}/Project"
+
+# --- Usage ------------------------------------------------------------------
+usage() {
+  echo "Usage:"
+  echo "  fpd                     # cd into selected repo"
+  echo "  fpd <command>           # run command on selected repo"
+  echo "  fpd <command> <search>  # filter repos, then run command"
+  exit 1
+}
+
+# --- Parse Arguments --------------------------------------------------------
+CMD=""
+SEARCH_TERM=""
+
+if [[ $# -eq 0 ]]; then
+  CMD="" # default: cd
+  SEARCH_TERM=""
+elif [[ $# -eq 1 ]]; then
+  CMD="$1" # fpd nvim
+  SEARCH_TERM=""
+elif [[ $# -ge 2 ]]; then
+  CMD="$1" # fpd nvim api
+  SEARCH_TERM="$2"
+fi
+
+# --- Find Git Repositories --------------------------------------------------
+# We list directories under BASE_PATH that contain a .git folder
+if command -v fd &>/dev/null; then
+  if [[ -n "$SEARCH_TERM" ]]; then
+    DIRS=$(fd --type d --max-depth 4 --base-directory "$BASE_PATH" \
+      --hidden --follow "$SEARCH_TERM" |
+      while read -r dir; do
+        [[ -d "$BASE_PATH/$dir/.git" ]] && echo "$dir"
+      done)
+  else
+    DIRS=$(fd --type d --max-depth 4 --base-directory "$BASE_PATH" \
+      --hidden --follow ".git" |
+      sed 's|/.git$||')
+  fi
+else
+  # Using find as fallback
+  if [[ -n "$SEARCH_TERM" ]]; then
+    DIRS=$(find "$BASE_PATH" -maxdepth 4 -type d -iname "*$SEARCH_TERM*" |
+      while read -r dir; do
+        [[ -d "$dir/.git" ]] && echo "${dir#$BASE_PATH/}"
+      done)
+  else
+    DIRS=$(find "$BASE_PATH" -maxdepth 4 -type d -name ".git" |
+      sed "s|/\.git$||; s|^${BASE_PATH}/||")
+  fi
+fi
+
+[[ -z "$DIRS" ]] && {
+  echo "No Git repositories found."
+  exit 1
+}
+
+# --- FZF Selection ----------------------------------------------------------
+SELECTED_DIR=$(
+  echo "$DIRS" |
+    fzf --height 30% \
+      --layout=reverse \
+      --border=rounded \
+      --prompt="Git Repo: " \
+      --preview "
+          cd ${BASE_PATH}/{} &&
+          git remote get-url origin
+          echo
+          echo 'Recent commits:'
+          git log --oneline --decorate --color=always -5
+        " \
+      --preview-window="right:50%:wrap" \
+      --header="↑↓ select | Enter open"
+)
+
+[[ -z "$SELECTED_DIR" ]] && exit 0
+
+# Strip .git suffix if present
+FULL_PATH="${BASE_PATH}/${SELECTED_DIR}/.."
+
+# --- Execute command or cd --------------------------------------------------
+if [[ -z "$CMD" ]]; then
+  # default behavior: cd
+  echo "$FULL_PATH"
+  exit 0
+fi
+
+# if command exists, run it with dir as argument
+"$CMD" "$FULL_PATH"

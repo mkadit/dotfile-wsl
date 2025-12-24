@@ -46,7 +46,7 @@ return {
         gopls = function(_, opts)
           -- workaround for gopls not supporting semanticTokensProvider
           -- https://github.com/golang/go/issues/54531#issuecomment-1464982242
-          LazyVim.lsp.on_attach(function(client, _)
+          Snacks.util.lsp.on({ name = "gopls" }, function(_, client)
             if not client.server_capabilities.semanticTokensProvider then
               local semantic = client.config.capabilities.textDocument.semanticTokens
               client.server_capabilities.semanticTokensProvider = {
@@ -58,7 +58,7 @@ return {
                 range = true,
               }
             end
-          end, "gopls")
+          end)
           -- end workaround
         end,
       },
@@ -66,6 +66,7 @@ return {
   },
   {
     "ray-x/go.nvim",
+    branch = "treesitter-main",
     dependencies = {
       -- go.nvim recommends guihua.lua for better UI/widgets
       "ray-x/guihua.lua",
@@ -172,32 +173,41 @@ return {
     end,
   },
 
-  -- {
-  --   "leoluz/nvim-dap-go",
-  --   event = "VeryLazy",
-  --   opts = function(_, opts)
-  --     opts.dap_configurations = opts.dap_configurations or {} -- ensure it's a table
-  --     table.insert(opts.dap_configurations, {
-  --       type = "go",
-  --       name = "Debug main package",
-  --       request = "launch",
-  --       cwd = "${workspaceFolder}",
-  --       program = function()
-  --         local cwd = vim.fn.getcwd()
-  --         local foldername = vim.fn.fnamemodify(cwd, ":t")
-  --         local file = cwd .. "/cmd/" .. string.lower(foldername) .. "/main.go"
-  --         vim.notify(file)
-  --         return file
-  --       end,
-  --     })
-  --
-  --     table.insert(opts.dap_configurations, {
-  --       type = "go",
-  --       name = "Debug Current",
-  --       request = "launch",
-  --       program = "${workspaceFolder}/cmd/fds-suisei",
-  --       cwd = "${workspaceFolder}",
-  --     })
-  --   end,
-  -- },
+  {
+    "leoluz/nvim-dap-go",
+    event = "VeryLazy",
+    opts = function(_, opts)
+      opts.dap_configurations = opts.dap_configurations or {} -- ensure it's a table
+      -- table.insert(opts.dap_configurations, {
+      --   type = "go",
+      --   name = "Debug main package",
+      --   request = "launch",
+      --   cwd = "${workspaceFolder}",
+      --   program = function()
+      --     local cwd = vim.fn.getcwd()
+      --     local foldername = vim.fn.fnamemodify(cwd, ":t")
+      --     local file = cwd .. "/cmd/" .. string.lower(foldername) .. "/main.go"
+      --     vim.notify(file)
+      --     return file
+      --   end,
+      -- })
+
+      table.insert(opts.dap_configurations, {
+        type = "go",
+        name = "Debug Current Package",
+        request = "launch",
+        cwd = "${workspaceFolder}",
+        program = "${fileDirname}",
+      })
+
+      table.insert(opts.dap_configurations, {
+        type = "go",
+        name = "Debug Test Current Package",
+        mode = "test",
+        request = "launch",
+        cwd = "${workspaceFolder}",
+        program = "${fileDirname}",
+      })
+    end,
+  },
 }

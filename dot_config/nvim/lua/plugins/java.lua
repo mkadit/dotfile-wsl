@@ -73,6 +73,7 @@ return {
         {
           name = "JavaSE-21",
           path = "~/.local/share/mise/installs/java/21/",
+          default = true,
         },
         {
           name = "JavaSE-17",

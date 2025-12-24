@@ -1,25 +1,30 @@
 local ls = require("luasnip")
 local fmt = require("luasnip.extras.fmt").fmt
-local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
-if not ok then
-  local ok, packer = pcall(require, "packer")
-  if ok then
-    require("packer").loader("nvim-treesitter")
-  else
-    local ok, lazy = pcall(require, "lazy")
-    if lazy then
-      lazy.load({ plugins = { "nvim-treesitter" } })
-    else
-      error("Please install nvim-treesitter")
-    end
-  end
-  ts_utils = require("nvim-treesitter.ts_utils")
-end
-local ts_locals = require("nvim-treesitter.locals")
 local rep = require("luasnip.extras").rep
 local ai = require("luasnip.nodes.absolute_indexer")
 
 local M = {}
+
+-- Helper to get node text without relying on external plugins
+local function get_node_text(node)
+  if not node then
+    return ""
+  end
+  return vim.treesitter.get_node_text(node, 0)
+end
+
+-- Helper to find the function node cursor is currently in
+local function get_function_node()
+  local node = vim.treesitter.get_node()
+  while node do
+    local type = node:type()
+    if type == "function_declaration" or type == "method_declaration" or type == "func_literal" then
+      return node
+    end
+    node = node:parent()
+  end
+  return nil
+end
 
 M.go_err_snippet = function(args, _, _, spec)
   local err_name = args[1][1]
@@ -110,15 +115,13 @@ local function transform(text, info)
   return ls.t(text)
 end
 
-local get_node_text = require("go.utils").get_node_text
-
 local handlers = {
   parameter_list = function(node, info)
     local result = {}
 
     local count = node:named_child_count()
     for idx = 0, count - 1 do
-      table.insert(result, transform(get_node_text(node:named_child(idx), 0), info))
+      table.insert(result, transform(get_node_text(node:named_child(idx)), info))
       if idx ~= count - 1 then
         table.insert(result, ls.t({ ", " }))
       end
@@ -128,7 +131,7 @@ local handlers = {
   end,
 
   type_identifier = function(node, info)
-    local text = get_node_text(node, 0)
+    local text = get_node_text(node)
     return { transform(text, info) }
   end,
 }
@@ -155,20 +158,9 @@ end
 
 local function return_value_nodes(info)
   set_query()
-  local cursor_node = ts_utils.get_node_at_cursor()
-  local scope_tree = ts_locals.get_scope_tree(cursor_node, 0)
 
-  local function_node
-  for _, scope in ipairs(scope_tree) do
-    if
-      scope:type() == "function_declaration"
-      or scope:type() == "method_declaration"
-      or scope:type() == "func_literal"
-    then
-      function_node = scope
-      break
-    end
-  end
+  -- Use our local helper instead of ts_locals/ts_utils
+  local function_node = get_function_node()
 
   if not function_node then
     return
@@ -182,8 +174,6 @@ local function return_value_nodes(info)
   end
   return ls.t({ "" })
 end
-
-local is_in_function = require("go.ts.go").in_func()
 
 ---Transforms the given arguments into nodes wrapped in a snippet node.
 M.make_return_nodes = function(args)
@@ -203,9 +193,13 @@ M.fill_return = function()
 end
 
 ---Runs the command in shell.
--- @param command string
--- @return table
-M.shell = require("go.utils").run_command
+-- Simple replacement if you don't have go.utils, or keep using go.utils if installed
+M.shell = function(command)
+  local file = io.popen(command, "r")
+  local res = file:read("*a")
+  file:close()
+  return { res } -- Simplified return matching original format
+end
 
 M.last_lua_module_section = function(args)
   local text = args[1][1] or ""
@@ -228,7 +222,11 @@ function M.is_in_test_file()
 end
 
 function M.is_in_test_function()
-  return M.is_in_test_file() and is_in_function()
+  if not M.is_in_test_file() then
+    return false
+  end
+  local node = get_function_node()
+  return node ~= nil
 end
 
 M.create_t_run = function(args)

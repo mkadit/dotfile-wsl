@@ -119,7 +119,7 @@ zle     -N   rfv
 bindkey '^H' rfv
 
 zsh_fzf_gfold() {
-  gfold_path=$($HOME/.local/bin/fzf_gfold)
+  gfold_path=$($HOME/.local/bin/fpd)
   cd $gfold_path
   }
 zle     -N   zsh_fzf_gfold

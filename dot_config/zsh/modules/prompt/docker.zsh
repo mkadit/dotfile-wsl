@@ -5,7 +5,13 @@ function _vbe_docker_async_start() {
 }
 
 function _vbe_docker_fetch() {
-    docker context show 2>/dev/null || echo "inactive"
+    # docker context show 2>/dev/null || echo "inactive"
+    ctx=$(docker context show 2>/dev/null 2>&1)
+    if docker context show >/dev/null 2>&1; then
+        docker context show 2>/dev/null
+    else
+        echo "inactive"
+    fi
 }
 
 function _vbe_docker_done() {
