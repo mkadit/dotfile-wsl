@@ -5,7 +5,8 @@
 set -euo pipefail
 
 # --- Configuration ----------------------------------------------------------
-BASE_PATH="${HOME}/Project"
+# BASE_PATH="${HOME}/Project"
+BASE_PATH="$(realpath "${HOME}/Project")"
 
 # --- Usage ------------------------------------------------------------------
 usage() {
