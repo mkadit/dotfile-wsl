@@ -209,3 +209,7 @@ unset -f bind-git-helper
 
 bindkey "^[[Z" fzf-tab-complete
 bindkey "^I" expand-or-complete
+
+autoload -z edit-command-line
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line

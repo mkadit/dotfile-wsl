@@ -8,7 +8,7 @@ PRIVATE_DOMAIN="suisei.gitlab.com"
 if [ "$enabled" = "1" ] && [ -n "$proxy" ]; then
   export http_proxy="http://$proxy"
   export https_proxy="http://$proxy"
-  export no_proxy=localhost,127.0.0.1
+  export no_proxy=localhost,127.0.0.1,0.0.0.0
   export HTTP_PROXY="http://$proxy"
   export HTTPS_PROXY="http://$proxy"
 

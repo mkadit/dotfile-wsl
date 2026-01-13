@@ -95,6 +95,7 @@ return {
         dap_debug = true, -- Enable go.nvim's DAP integration (uses nvim-dap)
         dap_test = true, -- Enable go.nvim's DAP for tests
         dap_timeout = 15000, -- Timeout for DAP operations
+        dap_debug_keymap = true,
 
         -- Code Actions & Formatting:
         goimport = "gopls", -- Use gopls for goimport (organize imports)
@@ -178,27 +179,6 @@ return {
     event = "VeryLazy",
     opts = function(_, opts)
       opts.dap_configurations = opts.dap_configurations or {} -- ensure it's a table
-      -- table.insert(opts.dap_configurations, {
-      --   type = "go",
-      --   name = "Debug main package",
-      --   request = "launch",
-      --   cwd = "${workspaceFolder}",
-      --   program = function()
-      --     local cwd = vim.fn.getcwd()
-      --     local foldername = vim.fn.fnamemodify(cwd, ":t")
-      --     local file = cwd .. "/cmd/" .. string.lower(foldername) .. "/main.go"
-      --     vim.notify(file)
-      --     return file
-      --   end,
-      -- })
-
-      table.insert(opts.dap_configurations, {
-        type = "go",
-        name = "Debug Current Package",
-        request = "launch",
-        cwd = "${workspaceFolder}",
-        program = "${fileDirname}",
-      })
 
       table.insert(opts.dap_configurations, {
         type = "go",

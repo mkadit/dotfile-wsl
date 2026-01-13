@@ -14,3 +14,6 @@ vim.o.undolevels = 10000
 vim.o.undodir = vim.fn.stdpath("data") .. "/undo"
 
 vim.g.rooter_manual_only = 1
+vim.g.lazyvim_python_lsp = "ty"
+-- Set to "ruff_lsp" to use the old LSP implementation version.
+vim.g.lazyvim_python_ruff = "ruff"
