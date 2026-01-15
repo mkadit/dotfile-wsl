@@ -169,13 +169,29 @@ return {
     "johmsalas/text-case.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function()
-      require("textcase").setup({})
+      require("textcase").setup({
+        -- default_keymappings_enabled = false,
+        prefix = "gAr",
+        enabled_methods = {
+          "to_upper_case",
+          "to_lower_case",
+          "to_snake_case",
+          "to_dash_case",
+          "to_title_dash_case",
+          "to_constant_case",
+          "to_dot_case",
+          "to_comma_case",
+          "to_phrase_case",
+          "to_camel_case",
+          "to_pascal_case",
+          "to_title_case",
+          "to_path_case",
+          "to_upper_phrase_case",
+          "to_lower_phrase_case",
+        },
+      })
       require("telescope").load_extension("textcase")
     end,
-    keys = {
-      "gA", -- Default invocation prefix
-      { "gA.", "<cmd>TextCaseOpenTelescope<CR>", mode = { "n", "x" }, desc = "Telescope" },
-    },
     -- cmd = {
     --   -- NOTE: The Subs command name can be customized via the option "substitude_command_name"
     --   "Subs",
@@ -204,6 +220,66 @@ return {
         "<Leader>av",
         "<CMD>Vifm<CR>",
         desc = "File manager",
+      },
+    },
+  },
+
+  {
+    "folke/todo-comments.nvim",
+    opts = {
+      highlight = {
+        keyword = "wide", -- "wide" highlights the keyword + (scope) + colon. Looks like a badge.
+        pattern = [[.*<((KEYWORDS)%(\(.{-1,}\))?):]],
+      },
+      search = {
+        -- Ripgrep regex for Telescope
+        -- \b       = Word boundary
+        -- \s* = Optional space
+        -- \(.*\)   = Literal parens with content
+        -- ?        = Optional
+        pattern = [[\b(KEYWORDS)(\([^\)]*\))?:]],
+      },
+      keywords = {
+        -- 1. URGENT / DANGER
+        FIX = { icon = " ", color = "error", alt = { "FIXME", "BUG", "FIXIT", "ISSUE" } },
+        -- 2. WARNINGS / SMELLS
+        WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
+        HACK = { icon = " ", color = "hack", alt = { "SCARY" } },
+        -- 3. TASKS
+        TODO = { icon = " ", color = "info" }, -- Blue
+        CHORE = { icon = " ", color = "chore", alt = { "MAINTAIN" } },
+        -- 4. PERFORMANCE / TESTING
+        PERF = { icon = " ", color = "perf", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+        TEST = { icon = "⏲ ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+        -- 5. CONTEXT / INFO
+        NOTE = { icon = " ", color = "note", alt = { "INFO", "THOUGHT" } },
+        NIT = { icon = "✎ ", color = "nit", alt = { "NITPICK" } },
+        -- 6. COLLABORATION (Conventional Comments)
+        SUGGEST = { icon = " ", color = "suggestion", alt = { "SUGGESTION" } },
+        PRAISE = { icon = " ", color = "praise", alt = { "NICE", "GOOD" } },
+        QUESTION = { icon = " ", color = "question", alt = { "Q", "QUERY" } },
+      },
+
+      -- list of named colors where we try to extract the guifg from the
+      -- list of highlight groups or use the hex color if hl not found as a fallback
+      colors = {
+        -- Standard Mappings
+        error = { "DiagnosticError", "ErrorMsg", "#DC2626" }, -- Red
+        warning = { "DiagnosticWarn", "WarningMsg", "#FBBF24" }, -- Yellow
+        info = { "DiagnosticInfo", "#2563EB" }, -- Strong Blue
+
+        -- Distinct Overrides
+        hack = { "#D97706" }, -- Burnt Orange
+        chore = { "#4338ca" }, -- Indigo (Deep Blue/Purple)
+        perf = { "#7C3AED" }, -- Violet
+        test = { "Identifier", "#FF00FF" }, -- Magenta/Fuchsia
+        note = { "DiagnosticHint", "#10B981" }, -- Emerald/Mint
+        nit = { "Comment", "#9CA3AF" }, -- Grey
+
+        -- Collaboration Colors
+        suggestion = { "#06B6D4" }, -- Cyan/Electric Blue
+        praise = { "DiagnosticOk", "#84CC16" }, -- Lime (Bright Green)
+        question = { "#FF1D8D" }, -- Rose/Red-Pink
       },
     },
   },
