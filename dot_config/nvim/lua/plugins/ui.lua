@@ -2,6 +2,10 @@ return {
 
   {
     "akinsho/bufferline.nvim",
+    keys = {
+      { "H" },
+      { "L" },
+    },
     opts = {
       options = {
         mode = "tabs", -- Set to "tabs" to only show tabpages instead of buffers

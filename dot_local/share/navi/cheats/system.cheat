@@ -4,3 +4,8 @@ source <bin>
 
 $ bin: which wsl-proxy-sync
 
+% system, process
+# kill process forcefully
+kill -9 <pss>
+
+$ pss: ps aux | fzf | awk '{print $2}'

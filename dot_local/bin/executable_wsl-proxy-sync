@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# Get Windows proxy settings via PowerShell
 proxy=$(powershell.exe -Command "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' | Select-Object -ExpandProperty ProxyServer" 2>/dev/null | tr -d '\r')
 enabled=$(powershell.exe -Command "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' | Select-Object -ExpandProperty ProxyEnable" 2>/dev/null | tr -d '\r')
-PRIVATE_DOMAIN="suisei.gitlab.com"
+
+PRIVATE_DOMAIN="gitlab.artajasa.co.id"
 
 if [ "$enabled" = "1" ] && [ -n "$proxy" ]; then
   export http_proxy="http://$proxy"
   export https_proxy="http://$proxy"
-  export no_proxy=localhost,127.0.0.1,0.0.0.0
+  export no_proxy="localhost,127.0.0.1,0.0.0.0,.$PRIVATE_DOMAIN"
   export HTTP_PROXY="http://$proxy"
   export HTTPS_PROXY="http://$proxy"
+  export NO_PROXY="localhost,127.0.0.1,0.0.0.0,.$PRIVATE_DOMAIN"
 
   if command -v go >/dev/null 2>&1; then
     go env -w GOPROXY=direct
@@ -20,12 +21,17 @@ if [ "$enabled" = "1" ] && [ -n "$proxy" ]; then
   fi
 
   if command -v git >/dev/null 2>&1; then
+    # Set global proxy
     git config --global http.proxy "$http_proxy"
     git config --global https.proxy "$https_proxy"
+
+    # CRITICAL: Exclude private GitLab from proxy
+    git config --global http.https://$PRIVATE_DOMAIN.proxy ""
+    git config --global http.https://$PRIVATE_DOMAIN.sslVerify false
   fi
 
   echo "🔌 Proxy enabled: $proxy"
-
+  echo "✅ Private domain excluded: $PRIVATE_DOMAIN"
 else
   if command -v go >/dev/null 2>&1; then
     go env -w GOPROXY=https://proxy.golang.org,direct
@@ -34,11 +40,13 @@ else
     go env -u GOINSECURE
   fi
 
-  unset http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY
+  unset http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY
 
   if command -v git >/dev/null 2>&1; then
     git config --global --unset http.proxy 2>/dev/null
     git config --global --unset https.proxy 2>/dev/null
+    git config --global --unset http.https://$PRIVATE_DOMAIN.proxy 2>/dev/null
+    git config --global --unset http.https://$PRIVATE_DOMAIN.sslVerify 2>/dev/null
   fi
 
   echo "🌐 Proxy disabled"
