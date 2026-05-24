@@ -8,14 +8,8 @@
 
 # go packages
 # go install github.com/Zxilly/go-size-analyzer/cmd/gsa@latest
-go install github.com/vektra/mockery/v3@v3.3.2
-go install -tags most github.com/xo/usql@master
 go install github.com/derailed/k9s@latest
-go install github.com/jesseduffield/lazydocker@latest
-go install github.com/gopasspw/gopass@latest
-go install github.com/mikefarah/yq/v4@latest
 go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
-go install github.com/go-delve/delve/cmd/dlv@latest
 go install github.com/spf13/cobra-cli@latest
 
 # # tailwindcss
